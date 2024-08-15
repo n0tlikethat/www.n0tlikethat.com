@@ -12,12 +12,17 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "@vueuse/core": "^11.0.0",
     "nuxt": "^3.12.4",
     "vue": "latest"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240815.0",
+    "@nuxtjs/device": "^3.1.1",
     "nitro-cloudflare-dev": "^0.1.6",
+    "vite-plugin-vuetify": "^2.0.4",
+    "vuetify": "^3.7.0",
     "wrangler": "^3.71.0"
   }
 }
