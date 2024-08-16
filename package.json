@@ -1,5 +1,7 @@
 {
-  "name": "nuxt-app",
+  "name": "www.n0tlikethat.com",
+  "description": "The website for www.n0tlikethat.com",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
