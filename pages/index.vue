@@ -18,7 +18,12 @@ const commands = [
   },
   {
     command: 'hostname',
-    function: () => hostname.value,
+    function: (arg: string) => {
+      if (arg) {
+        return `Do you mean \`sethostname\`?`;
+      }
+      return hostname.value;
+    },
     help_text: 'Display the current hostname'
   },
   {
@@ -53,12 +58,18 @@ const commands = [
   },
   {
     command: ['links', 'socials'],
-    function: () => "HackerOne: hackerone.com/n0tlikethat\nBugCrowd: bugcrowd.com/n0tlikethat\nTwitter: @AidanMatzko",
+    function: () => [
+      "HackerOne: hackerone.com/n0tlikethat",
+      "BugCrowd: bugcrowd.com/n0tlikethat",
+      "Twitter: @AidanMatzko",
+      "LinkedIn: linkedin.com/in/aidan-matzko",
+      "Email: hi@n0tlikethat.com"
+    ].join("\n"),
     help_text: 'Display links to n0tlikethat profiles',
   },
   {
     command: 'contact',
-    function: () => "Reach out to me on Twitter @AidanMatzko or contact aidan@n0tlikethat.com",
+    function: () => "Reach out to me on Twitter @AidanMatzko or contact hi@n0tlikethat.com",
     help_text: 'Display contact information'
   },
   {
@@ -77,7 +88,11 @@ const commands = [
   },
   {
     command: 'sudo',
-    function: () => {
+    function: (arg: string) => {
+      if (arg === '-l') {
+        return `User may run the following commands on this host:
+    (ALL) NOPASSWD: /bin/su`;
+      }
       return `
    /\\_/\\
   ( o.o )
@@ -88,6 +103,65 @@ const commands = [
     },
     help_text: 'Attempt to use sudo (with feline consequences)',
     hideFromHelp: true,
+  },
+  {
+    command: 'su',
+    function: (arg1: string) => {
+      if (arg1 !== 'root') {
+        return 'Authentication failed';
+      }
+      user.value = 'root';
+      return `Password: 
+Authentication successful`;
+    },
+    help_text: 'Switch to superuser',
+    hideFromHelp: true,
+  },
+  {
+    command: 'sethostname',
+    function: (newHostname: string) => {
+      if (!newHostname) {
+        return 'Usage: sethostname <new_hostname>';
+      }
+      hostname.value = newHostname;
+      return `Hostname changed to: ${newHostname}`;
+    },
+    help_text: 'Change the system hostname',
+    hideFromHelp: true,
+  },
+  {
+    command: '🏈',
+    function: async () => {
+      const { games, loading, error, fetchTopGames } = useTopGamesOfWeek();
+
+      await fetchTopGames();
+
+      while (loading.value) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      if (error.value) {
+        console.error('Error fetching games:', error.value);
+        return "Sorry, there was an error fetching the games. Please try again later.";
+      }
+      
+      if (games.value.length === 0) {
+        return "No games found for this week.";
+      }
+
+      // Limit to 5 games
+      const topGames = games.value.slice(0, 5);
+
+      // Format the output for each game
+      const formattedGames = topGames.map(game => `${game.league.name} - ${game.date} ${game.time}
+${game.teams.away.name} vs ${game.teams.home.name}
+Status: ${game.status.long}
+Venue: ${game.venue.name}, ${game.venue.city}
+`).join('\n');
+
+      return formattedGames;
+    },
+    help_text: 'Display top American football games of the week',
   },
 ];
 

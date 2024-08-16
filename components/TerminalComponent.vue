@@ -3,7 +3,7 @@ import { ref, onMounted, computed, watch, nextTick } from 'vue';
 
 interface Command {
   command: string | string[];
-  function: (...args: string[]) => string;
+  function: (...args: string[]) => Promise<string> | string;
   help_text: string;
   hideFromHelp?: boolean;
 }
@@ -69,7 +69,7 @@ const defaultCommands: Command[] = [
 
 const allCommands = [...defaultCommands, ...props.commands];
 
-const executeCommand = () => {
+const executeCommand = async () => {
   const [cmd, ...args] = input.value.trim().split(' ');
   output.value.push(`${prompt.value}${input.value}`);
   
@@ -77,7 +77,14 @@ const executeCommand = () => {
     Array.isArray(command.command) ? command.command.includes(cmd) : command.command === cmd
   );
   if (foundCommand) {
-    output.value.push(foundCommand.function(...args));
+    const result = foundCommand.function(...args);
+    if (result instanceof Promise) {
+      input.value = '';
+      const res = await result;
+      output.value.push(res);
+    } else {
+      output.value.push(result);
+    }
   } else if (cmd !== '') {
     output.value.push(`Command not found: ${cmd}`);
   }
